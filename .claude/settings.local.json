@@ -14,7 +14,12 @@
       "Bash(pkill -f \"next dev\")",
       "Bash(pkill -f \"next-server\")",
       "Bash(node *)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "Bash(npx --yes vercel --version)",
+      "Bash(npx --yes vercel whoami)",
+      "Bash(npx --yes vercel integration add --help)",
+      "Bash(npx --yes vercel integration add neon)",
+      "Bash(npx --yes vercel deploy --prod --yes)"
     ]
   }
 }
