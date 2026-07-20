@@ -1,0 +1,168 @@
+// Book Club Platform — Prisma schema
+// SQLite connector does not support enums; status fields are String
+// with app-level union types defined in src/lib/types.ts.
+// Data model reference: PRD §28.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A member of the book club. Can be HOST for a given month via Meeting.hostId.
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  nickname     String   @unique
+  profileImage String?
+  createdAt    DateTime @default(now())
+
+  hostedMeetings Meeting[]     @relation("MeetingHost")
+  hostRequests   Meeting[]     @relation("HostRequest")
+  dateVotes      DateVote[]
+  attendances    Attendance[]
+  reviews        Review[]
+}
+
+/// One book club cycle (usually one per month). PRD "MONTHLY MEETING".
+model Meeting {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int
+  /// BOOK_SELECTION | DATE_VOTING | DATE_CONFIRMED | ATTENDANCE_CHECK | PLACE_CONFIRMED | READY | COMPLETE
+  status    String   @default("BOOK_SELECTION")
+  /// Null until someone claims the host role for this month (PRD §3).
+  hostId    String?
+  /// A member who has asked to take over the host role (pending host's OK).
+  hostChangeRequestedById String?
+  /// Set once the host confirms a date from the candidates.
+  confirmedDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  host                User?                @relation("MeetingHost", fields: [hostId], references: [id])
+  hostChangeRequestedBy User?              @relation("HostRequest", fields: [hostChangeRequestedById], references: [id])
+  book                Book?
+  dateCandidates      DateCandidate[]
+  attendances         Attendance[]
+  place               Place?
+  discussionQuestions DiscussionQuestion[]
+  reviews             Review[]
+  socialContents      SocialContent[]
+
+  @@unique([year, month])
+  @@index([status])
+}
+
+/// The book chosen for a meeting. One-to-one with Meeting.
+model Book {
+  id        String  @id @default(cuid())
+  title     String
+  author    String
+  coverUrl  String?
+  meetingId String  @unique
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+/// A candidate date the host proposes for members to vote on.
+model DateCandidate {
+  id        String   @id @default(cuid())
+  meetingId String
+  date      DateTime
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  votes     DateVote[]
+
+  @@index([meetingId])
+}
+
+/// A member marking a candidate date as available (multi-select allowed).
+model DateVote {
+  id          String        @id @default(cuid())
+  candidateId String
+  userId      String
+  createdAt   DateTime      @default(now())
+  candidate   DateCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, userId])
+  @@index([userId])
+}
+
+/// Final attendance confirmation (re-check 7-10 days before the meeting).
+model Attendance {
+  id        String   @id @default(cuid())
+  meetingId String
+  userId    String
+  /// ATTENDING | NOT_ATTENDING | NO_RESPONSE
+  status    String   @default("NO_RESPONSE")
+  updatedAt DateTime @updatedAt
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@index([meetingId])
+}
+
+/// The reserved venue. One-to-one with Meeting.
+model Place {
+  id        String   @id @default(cuid())
+  meetingId String   @unique
+  name      String
+  address   String?
+  datetime  DateTime?
+  link      String?
+  cost      Int?
+  note      String?
+  reserved  Boolean  @default(false)
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+/// A discussion question written by the host (recommended 3-5 per meeting).
+model DiscussionQuestion {
+  id        String  @id @default(cuid())
+  meetingId String
+  order     Int
+  content   String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+}
+
+/// A member's rating + one-line review. readBook and attended are tracked
+/// separately: a member who read the book but missed the meeting may review.
+model Review {
+  id         String   @id @default(cuid())
+  meetingId  String
+  userId     String
+  rating     Int
+  comment    String
+  readBook   Boolean  @default(true)
+  attended   Boolean  @default(false)
+  snsConsent Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  meeting    Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@index([meetingId])
+}
+
+/// A generated Instagram carousel: which reviews, in what order, and the
+/// computed page layout. Stored as JSON strings (SQLite has no JSON type).
+model SocialContent {
+  id         String   @id @default(cuid())
+  meetingId  String
+  /// JSON: array of review ids in chosen order.
+  reviewIds  String
+  /// JSON: array of pages, each an array of review ids (2-4 per page).
+  pages      String
+  /// "4:5" | "1:1"
+  ratio      String   @default("4:5")
+  createdAt  DateTime @default(now())
+  meeting    Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+}

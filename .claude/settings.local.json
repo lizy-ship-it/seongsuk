@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(node -e 'const d=require\\(\"better-sqlite3\"\\)\\(\"dev.db\"\\);console.log\\(d.prepare\\(\"SELECT id FROM Meeting WHERE month=6\"\\).get\\(\\).id\\)')",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(:)",
+      "Read(//Applications/Google Chrome.app/Contents/MacOS/**)",
+      "Read(//Applications/**)",
+      "Bash(npm install *)",
+      "Bash(node /private/tmp/claude-501/-Users-lizy-app/e334d171-6986-4bb8-8ef3-71aad03b6baa/scratchpad/shot.mjs)",
+      "Bash(node _shot.mjs)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(node *)",
+      "Bash(npx prisma *)"
+    ]
+  }
+}
