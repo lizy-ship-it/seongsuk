@@ -24,6 +24,12 @@ export default async function ArchivePage() {
         <p className="text-muted text-sm mt-2">
           우리가 함께 읽은 책과 기록이 쌓입니다.
         </p>
+        <Link
+          href="/archive/attendance"
+          className="mt-3 inline-flex items-center rounded-full bg-ink px-4 py-2 text-sm font-semibold text-surface"
+        >
+          인원별 참석 현황 →
+        </Link>
       </header>
 
       {meetings.length === 0 ? (

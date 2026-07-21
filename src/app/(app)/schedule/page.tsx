@@ -151,12 +151,18 @@ export default async function SchedulePage() {
             </form>
           )}
 
-          {isHost && votingOpen && (
+          {isHost && !isComplete && (
             <details className="mt-4 border-t border-line pt-4">
               <summary className="text-sm text-accent cursor-pointer">
                 + 날짜 후보 더 추가 (책장)
               </summary>
               <div className="mt-3">
+                {confirmed && (
+                  <p className="text-xs text-muted mb-2">
+                    확정 후에도 날짜를 추가하고, 후보에서 “이 날로 변경”으로 바꿀 수
+                    있어요.
+                  </p>
+                )}
                 <DateCandidatesForm
                   meetingId={meeting.id}
                   submitLabel="날짜 추가"

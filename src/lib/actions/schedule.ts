@@ -30,20 +30,27 @@ export async function addCandidates(formData: FormData) {
     .filter(Boolean);
   if (dates.length === 0) return;
 
-  await prisma.$transaction([
-    prisma.dateCandidate.createMany({
-      data: dates.map((d) => ({
-        meetingId,
-        // datetime-local value -> Date; treat as local wall-clock.
-        date: new Date(d),
-      })),
-    }),
-    prisma.meeting.update({
+  const meeting = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    select: { status: true },
+  });
+
+  await prisma.dateCandidate.createMany({
+    data: dates.map((d) => ({
+      meetingId,
+      // datetime-local value -> Date; treat as local wall-clock.
+      date: new Date(d),
+    })),
+  });
+  // Only open voting the first time; don't rewind a confirmed meeting.
+  if (meeting?.status === "BOOK_SELECTION") {
+    await prisma.meeting.update({
       where: { id: meetingId },
       data: { status: "DATE_VOTING" },
-    }),
-  ]);
+    });
+  }
   revalidatePath("/schedule");
+  revalidatePath("/meeting");
   revalidatePath("/");
 }
 

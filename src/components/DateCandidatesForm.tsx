@@ -12,13 +12,14 @@ export function DateCandidatesForm({
   meetingId: string;
   submitLabel?: string;
 }) {
-  const [rows, setRows] = useState<string[]>(["", ""]);
+  const MAX = 10;
+  const [rows, setRows] = useState<string[]>(["", "", "", ""]);
 
   function update(i: number, v: string) {
     setRows((prev) => prev.map((r, idx) => (idx === i ? v : r)));
   }
   function add() {
-    setRows((prev) => [...prev, ""]);
+    setRows((prev) => (prev.length >= MAX ? prev : [...prev, ""]));
   }
   function remove(i: number) {
     setRows((prev) => (prev.length <= 1 ? prev : prev.filter((_, idx) => idx !== i)));
@@ -49,13 +50,17 @@ export function DateCandidatesForm({
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={add}
-        className="w-full rounded-lg border border-dashed border-line py-2.5 text-sm text-muted hover:border-accent hover:text-accent"
-      >
-        + 날짜 추가
-      </button>
+      {rows.length < MAX ? (
+        <button
+          type="button"
+          onClick={add}
+          className="w-full rounded-lg border border-dashed border-line py-2.5 text-sm text-muted hover:border-accent hover:text-accent"
+        >
+          + 날짜 추가 ({rows.length}/{MAX})
+        </button>
+      ) : (
+        <p className="text-center text-xs text-muted">최대 {MAX}개까지 추가할 수 있어요</p>
+      )}
 
       <SubmitButton className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
         {submitLabel}
