@@ -38,8 +38,8 @@ export async function addCandidates(formData: FormData) {
   await prisma.dateCandidate.createMany({
     data: dates.map((d) => ({
       meetingId,
-      // datetime-local value -> Date; treat as local wall-clock.
-      date: new Date(d),
+      // datetime-local has no zone; the host means Korea time.
+      date: new Date(`${d}+09:00`),
     })),
   });
   // Only open voting the first time; don't rewind a confirmed meeting.

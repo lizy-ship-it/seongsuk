@@ -80,7 +80,8 @@ export async function savePlace(formData: FormData) {
   const costRaw = String(formData.get("cost") ?? "").trim();
   const cost = costRaw ? parseInt(costRaw.replace(/[^0-9]/g, ""), 10) : null;
   const datetimeRaw = String(formData.get("datetime") ?? "").trim();
-  const datetime = datetimeRaw ? new Date(datetimeRaw) : null;
+  // datetime-local has no zone; interpret as Korea time.
+  const datetime = datetimeRaw ? new Date(`${datetimeRaw}+09:00`) : null;
   const confirm = formData.get("confirm") != null;
 
   await prisma.place.upsert({
