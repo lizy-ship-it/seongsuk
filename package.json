@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:prod": "tsx prisma/seed.prod.ts",
+    "db:reset:prod": "tsx prisma/reset.prod.ts",
     "db:push": "prisma db push",
     "postinstall": "prisma generate"
   },

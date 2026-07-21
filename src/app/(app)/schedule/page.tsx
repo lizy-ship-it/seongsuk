@@ -9,6 +9,7 @@ import {
   submitVote,
   confirmDate,
   changeConfirmedDate,
+  reopenVoting,
 } from "@/lib/actions/schedule";
 
 export default async function SchedulePage() {
@@ -149,6 +150,22 @@ export default async function SchedulePage() {
                 내 가능 날짜 저장
               </SubmitButton>
             </form>
+          )}
+
+          {isHost && confirmed && !isComplete && (
+            <div className="mt-4 border-t border-line pt-4">
+              <p className="text-sm font-medium">투표가 마감됐어요</p>
+              <p className="text-xs text-muted mt-0.5 mb-3">
+                날짜를 다시 정하려면 투표를 다시 열 수 있어요. (참석 응답은
+                초기화됩니다)
+              </p>
+              <form action={reopenVoting}>
+                <input type="hidden" name="meetingId" value={meeting.id} />
+                <SubmitButton className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-surface">
+                  투표 다시 열기
+                </SubmitButton>
+              </form>
+            </div>
           )}
 
           {isHost && !isComplete && (

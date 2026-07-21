@@ -122,6 +122,27 @@ export async function confirmDate(formData: FormData) {
   revalidatePath("/");
 }
 
+/** Host re-opens date voting (un-confirms the date, clears attendance). */
+export async function reopenVoting(formData: FormData) {
+  const meetingId = String(formData.get("meetingId"));
+  await requireHost(meetingId);
+  const meeting = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    select: { status: true },
+  });
+  if (!meeting || meeting.status === "COMPLETE") return;
+  await prisma.$transaction([
+    prisma.attendance.deleteMany({ where: { meetingId } }),
+    prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: "DATE_VOTING", confirmedDate: null },
+    }),
+  ]);
+  revalidatePath("/schedule");
+  revalidatePath("/meeting");
+  revalidatePath("/");
+}
+
 /** Host changes the confirmed date after voting closed (keeps attendance). */
 export async function changeConfirmedDate(formData: FormData) {
   const meetingId = String(formData.get("meetingId"));
