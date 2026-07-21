@@ -39,13 +39,13 @@ export default async function HomePage() {
         className={action.info ? "" : "!bg-ink text-surface"}
       >
         <p
-          className={`eyebrow ${action.info ? "" : "!text-white/70"}`}
+          className={`eyebrow ${action.info ? "" : "!text-surface/70"}`}
         >
           {isHost ? "책장 · 지금 할 일" : "지금 할 일"}
         </p>
         <h2
           className={`font-display text-2xl mt-2 ${
-            action.info ? "" : "text-white"
+            action.info ? "" : "text-surface"
           }`}
         >
           {action.title}
@@ -53,7 +53,7 @@ export default async function HomePage() {
         {action.desc && (
           <p
             className={`mt-2 text-sm ${
-              action.info ? "text-muted" : "text-white/85"
+              action.info ? "text-muted" : "text-surface/85"
             }`}
           >
             {action.desc}

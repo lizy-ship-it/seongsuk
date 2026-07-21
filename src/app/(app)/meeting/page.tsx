@@ -21,8 +21,8 @@ import {
 } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import { PlaceForm } from "@/components/PlaceForm";
+import { BookForm } from "@/components/BookForm";
 import {
-  setBook,
   respondAttendance,
   saveQuestions,
   markReady,
@@ -104,30 +104,34 @@ export default async function MeetingPage() {
             <Eyebrow>이달의 책 선정</Eyebrow>
             <Chip tone="accent">책장 전용</Chip>
           </div>
-          <form action={setBook} className="mt-3 space-y-3">
-            <input type="hidden" name="meetingId" value={meeting.id} />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <input
-                name="title"
-                placeholder="책 제목"
-                required
-                className="rounded-lg border border-line bg-paper px-3 py-2 text-sm"
-              />
-              <input
-                name="author"
-                placeholder="저자"
-                className="rounded-lg border border-line bg-paper px-3 py-2 text-sm"
-              />
-            </div>
-            <input
-              name="coverUrl"
-              placeholder="표지 이미지 URL (선택)"
-              className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm"
+          <BookForm meetingId={meeting.id} />
+          <p className="text-xs text-muted mt-2">
+            표지는 사진 파일로 올리거나 이미지 URL을 붙여넣을 수 있어요.
+          </p>
+        </Card>
+      )}
+
+      {/* Book edit (host, after selection, before complete) */}
+      {meeting.book && isHost && !statusReached(meeting.status, "COMPLETE") && (
+        <Card>
+          <div className="flex items-center gap-2">
+            <Eyebrow>책 정보</Eyebrow>
+            <Chip tone="accent">책장 전용</Chip>
+          </div>
+          <details className="mt-2">
+            <summary className="text-sm text-accent cursor-pointer">
+              책 정보 수정 (제목·저자·표지)
+            </summary>
+            <BookForm
+              meetingId={meeting.id}
+              submitLabel="책 정보 저장"
+              initial={{
+                title: meeting.book.title,
+                author: meeting.book.author,
+                coverUrl: meeting.book.coverUrl,
+              }}
             />
-            <button className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white">
-              책 등록
-            </button>
-          </form>
+          </details>
         </Card>
       )}
 
@@ -304,13 +308,13 @@ function FinalNotice({
   const d = meeting.confirmedDate;
   const dday = d ? daysUntil(d) : null;
   return (
-    <Card className="!bg-ink text-white border-ink">
+    <Card className="!bg-ink text-surface border-ink">
       <div className="flex items-start justify-between">
-        <p className="eyebrow !text-white/60">
+        <p className="eyebrow !text-surface/60">
           {monthFull(meeting.month)} Book Club
         </p>
         {dday != null && dday >= 0 && (
-          <span className="text-xs text-white/70">D-{dday}</span>
+          <span className="text-xs text-surface/70">D-{dday}</span>
         )}
       </div>
       <div className="mt-4 flex gap-4">
@@ -328,10 +332,10 @@ function FinalNotice({
               <p className="font-display text-2xl leading-snug">
                 『{meeting.book.title}』
               </p>
-              <p className="text-white/70 text-sm">{meeting.book.author}</p>
+              <p className="text-surface/70 text-sm">{meeting.book.author}</p>
             </>
           ) : (
-            <p className="text-white/60">책 선정 예정</p>
+            <p className="text-surface/60">책 선정 예정</p>
           )}
         </div>
       </div>
@@ -368,7 +372,7 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[0.65rem] tracking-widest text-white/50 font-display">
+      <p className="text-[0.65rem] tracking-widest text-surface/50 font-display">
         {label}
       </p>
       <p className="mt-0.5">{value}</p>

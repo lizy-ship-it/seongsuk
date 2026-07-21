@@ -89,7 +89,7 @@ export function PlaceLink({
       rel="noreferrer"
       className={`inline-flex items-center gap-1 ${
         dark
-          ? "text-white underline decoration-white/40 underline-offset-2"
+          ? "text-surface underline decoration-surface/40 underline-offset-2"
           : "text-accent hover:underline underline-offset-2"
       } ${className}`}
     >

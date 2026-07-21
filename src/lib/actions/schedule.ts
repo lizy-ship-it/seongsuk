@@ -107,8 +107,31 @@ export async function confirmDate(formData: FormData) {
         userId: m.id,
         status: "NO_RESPONSE",
       })),
+      skipDuplicates: true,
     }),
   ]);
+  revalidatePath("/schedule");
+  revalidatePath("/meeting");
+  revalidatePath("/");
+}
+
+/** Host changes the confirmed date after voting closed (keeps attendance). */
+export async function changeConfirmedDate(formData: FormData) {
+  const meetingId = String(formData.get("meetingId"));
+  await requireHost(meetingId);
+  const candidateId = String(formData.get("candidateId"));
+  const candidate = await prisma.dateCandidate.findUnique({
+    where: { id: candidateId },
+    select: { meetingId: true, date: true },
+  });
+  if (!candidate || candidate.meetingId !== meetingId) {
+    revalidatePath("/schedule");
+    return;
+  }
+  await prisma.meeting.update({
+    where: { id: meetingId },
+    data: { confirmedDate: candidate.date },
+  });
   revalidatePath("/schedule");
   revalidatePath("/meeting");
   revalidatePath("/");

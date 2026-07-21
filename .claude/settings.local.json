@@ -19,7 +19,15 @@
       "Bash(npx --yes vercel whoami)",
       "Bash(npx --yes vercel integration add --help)",
       "Bash(npx --yes vercel integration add neon)",
-      "Bash(npx --yes vercel deploy --prod --yes)"
+      "Bash(npx --yes vercel deploy --prod --yes)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://seongsuk-test.vercel.app/login)",
+      "Bash(curl -s https://seongsuk-test.vercel.app/login)",
+      "Bash(perl -0pi -e 's/!bg-ink text-white border-ink/!bg-ink text-surface border-ink/g; s/!text-white\\\\/60/!text-surface\\\\/60/g; s/text-white\\\\/70/text-surface\\\\/70/g; s/text-white\\\\/60/text-surface\\\\/60/g; s/text-white\\\\/50/text-surface\\\\/50/g' src/app/\\\\\\(app\\\\\\)/meeting/page.tsx)",
+      "Bash(perl -0pi -e 's/!text-white\\\\/70/!text-surface\\\\/70/g; s/action\\\\.info \\\\? \"\" : \"text-white\"/action.info ? \"\" : \"text-surface\"/g; s/text-white\\\\/85/text-surface\\\\/85/g' src/app/\\\\\\(app\\\\\\)/page.tsx)",
+      "Bash(perl -0pi -e 's/text-white underline decoration-white\\\\/40/text-surface underline decoration-surface\\\\/40/g' src/components/ui.tsx)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m '다크모드 수정, 책표지 업로드+URL, 날짜 무제한, 확정후 수정, 참석기록 *)",
+      "Bash(git push *)"
     ]
   }
 }

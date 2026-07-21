@@ -4,7 +4,12 @@ import { statusReached } from "@/lib/types";
 import { formatDateKo, formatTime } from "@/lib/format";
 import { Card, Eyebrow, Chip } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
-import { addCandidates, submitVote, confirmDate } from "@/lib/actions/schedule";
+import { DateCandidatesForm } from "@/components/DateCandidatesForm";
+import {
+  submitVote,
+  confirmDate,
+  changeConfirmedDate,
+} from "@/lib/actions/schedule";
 
 export default async function SchedulePage() {
   const user = (await getCurrentUser())!;
@@ -16,6 +21,7 @@ export default async function SchedulePage() {
   const isHost = meeting.hostId === user.id;
   const votingOpen = meeting.status === "DATE_VOTING";
   const confirmed = statusReached(meeting.status, "DATE_CONFIRMED");
+  const isComplete = statusReached(meeting.status, "COMPLETE");
 
   const members = await getMemberCount();
   const candidates = meeting.dateCandidates.map((c) => ({
@@ -50,28 +56,15 @@ export default async function SchedulePage() {
       {meeting.status === "BOOK_SELECTION" && (
         <Card>
           {isHost ? (
-            <form action={addCandidates} className="space-y-4">
-              <input type="hidden" name="meetingId" value={meeting.id} />
-              <div>
+            <>
+              <div className="mb-3">
                 <p className="font-medium">후보 날짜 등록</p>
                 <p className="text-sm text-muted mt-1">
-                  투표에 올릴 날짜를 추가하세요. 비워둔 칸은 무시됩니다.
+                  투표에 올릴 날짜를 원하는 만큼 추가하세요. 비운 칸은 무시됩니다.
                 </p>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {[0, 1, 2, 3].map((i) => (
-                  <input
-                    key={i}
-                    type="datetime-local"
-                    name="dates"
-                    className="rounded-lg border border-line bg-paper px-3 py-2 text-sm"
-                  />
-                ))}
-              </div>
-              <SubmitButton className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
-                후보 등록하고 투표 열기
-              </SubmitButton>
-            </form>
+              <DateCandidatesForm meetingId={meeting.id} />
+            </>
           ) : (
             <p className="text-muted text-sm">
               책장이 후보 날짜를 등록하면 투표가 열려요.
@@ -135,6 +128,15 @@ export default async function SchedulePage() {
                       </SubmitButton>
                     </form>
                   )}
+                  {isHost && confirmed && !isComplete && !c.isConfirmed && (
+                    <form action={changeConfirmedDate}>
+                      <input type="hidden" name="meetingId" value={meeting.id} />
+                      <input type="hidden" name="candidateId" value={c.id} />
+                      <SubmitButton className="rounded-full border border-line text-muted text-xs px-3 py-1.5 hover:border-accent hover:text-accent whitespace-nowrap">
+                        이 날로 변경
+                      </SubmitButton>
+                    </form>
+                  )}
                 </li>
               );
             })}
@@ -147,6 +149,20 @@ export default async function SchedulePage() {
                 내 가능 날짜 저장
               </SubmitButton>
             </form>
+          )}
+
+          {isHost && votingOpen && (
+            <details className="mt-4 border-t border-line pt-4">
+              <summary className="text-sm text-accent cursor-pointer">
+                + 날짜 후보 더 추가 (책장)
+              </summary>
+              <div className="mt-3">
+                <DateCandidatesForm
+                  meetingId={meeting.id}
+                  submitLabel="날짜 추가"
+                />
+              </div>
+            </details>
           )}
         </Card>
       )}

@@ -18,6 +18,9 @@ export default async function ArchiveDetailPage({
 
   const avg = averageRating(meeting.reviews);
   const attending = meeting.attendances.filter((a) => a.status === "ATTENDING");
+  const notAttending = meeting.attendances.filter(
+    (a) => a.status === "NOT_ATTENDING",
+  );
   const myReview = meeting.reviews.find((r) => r.userId === user.id);
   const consented = meeting.reviews.filter((r) => r.snsConsent);
 
@@ -81,11 +84,20 @@ export default async function ArchiveDetailPage({
           )}
         </Card>
         <Card>
-          <Eyebrow>책장 &amp; 멤버</Eyebrow>
+          <Eyebrow>책장 &amp; 참석</Eyebrow>
           <p className="mt-2 text-sm">책장 {meeting.host?.name ?? "미정"}</p>
-          <p className="text-sm text-muted mt-1">
-            참석 {attending.map((a) => a.user.name).join(", ") || "기록 없음"}
-          </p>
+          <div className="mt-2 space-y-1 text-sm">
+            <p>
+              <span className="text-muted">참석 {attending.length}명</span>{" "}
+              {attending.map((a) => a.user.name).join(", ") || "기록 없음"}
+            </p>
+            {notAttending.length > 0 && (
+              <p>
+                <span className="text-muted">불참 {notAttending.length}명</span>{" "}
+                {notAttending.map((a) => a.user.name).join(", ")}
+              </p>
+            )}
+          </div>
         </Card>
       </div>
 
